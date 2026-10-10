@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "KalaVision AI",
+    "slug": "kalavision-ai",
+    "scheme": "kalavision",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#1A0F0A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kalavision.ai"
+    },
+    "android": {
+      "package": "com.kalavision.ai",
+      "permissions": ["CAMERA", "RECORD_AUDIO"],
+      "adaptiveIcon": {
+        "backgroundColor": "#1A0F0A"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "KalaVision AI needs camera access to detect mudras and expressions live."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}

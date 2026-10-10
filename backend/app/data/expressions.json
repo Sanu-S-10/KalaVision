@@ -1,0 +1,74 @@
+[
+  {
+    "_id": "shringara",
+    "id": "shringara",
+    "name": "Shringara",
+    "rasa": "Love",
+    "tone": "with tender affection",
+    "description": "The erotic or romantic sentiment. The eyelids flutter softly, cheeks rise in a gentle warmth, and the gaze glances coyly with divine longing."
+  },
+  {
+    "_id": "hasya",
+    "id": "hasya",
+    "name": "Hasya",
+    "rasa": "Laughter",
+    "tone": "with amused mirth",
+    "description": "Comic sentiment or mirth. Eyes widen with dancing sparks, eyebrows curve quizzically, and the lips part in mocking or cheerful humor."
+  },
+  {
+    "_id": "karuna",
+    "id": "karuna",
+    "name": "Karuna",
+    "rasa": "Compassion",
+    "tone": "with poignant sorrow",
+    "description": "Pathos and deep grief. Eyebrows droop inward, lower eyelids quiver with heavy stillness, evoking heartbreak, empathy, or loss."
+  },
+  {
+    "_id": "raudra",
+    "id": "raudra",
+    "name": "Raudra",
+    "rasa": "Anger",
+    "tone": "with fierce wrath",
+    "description": "Furious wrath and indignation. The eyes blaze wide and red with intense focus, nostrils flare, and jaws clench in menacing fury."
+  },
+  {
+    "_id": "veera",
+    "id": "veera",
+    "name": "Veera",
+    "rasa": "Heroism",
+    "tone": "with heroic resolve",
+    "description": "Valor and righteous courage. The chest expands, brows lift with resolute nobility, and the gaze projects unwavering determination."
+  },
+  {
+    "_id": "bhayanaka",
+    "id": "bhayanaka",
+    "name": "Bhayanaka",
+    "rasa": "Fear",
+    "tone": "with trembling apprehension",
+    "description": "Dread and terror. The eyes dart restlessly from side to side, pupils dilate, and facial muscles tremble under imminent peril."
+  },
+  {
+    "_id": "bibhatsa",
+    "id": "bibhatsa",
+    "name": "Bibhatsa",
+    "rasa": "Disgust",
+    "tone": "with deep revulsion",
+    "description": "Loathing and aversion. The nose wrinkles, lips curl in sharp disdain, and the head turns away in total abhorrence."
+  },
+  {
+    "_id": "adbhuta",
+    "id": "adbhuta",
+    "name": "Adbhuta",
+    "rasa": "Wonder",
+    "tone": "in breathless wonder",
+    "description": "Awe and cosmic astonishment. Eyes open to their widest expanse, eyebrows arch skyward, and the performer takes in the miraculous."
+  },
+  {
+    "_id": "shanta",
+    "id": "shanta",
+    "name": "Shanta",
+    "rasa": "Peace",
+    "tone": "with calm serenity",
+    "description": "Supreme spiritual tranquility. The facial muscles soften into pure equilibrium, eyes gaze softly toward the horizon, undisturbed by worldly passions."
+  }
+]

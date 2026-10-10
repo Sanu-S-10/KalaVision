@@ -1,0 +1,37 @@
+[
+  {
+    "_id": "art-1",
+    "id": "art-1",
+    "title": "What is Kathakali?",
+    "category": "history",
+    "body": "Kathakali is a world-renowned classical dance-drama originating from Kerala in the 17th century. Renowned for its extraordinarily detailed facial makeup, massive headdresses (Kiritam), and elaborate costumes, it transforms ancient epics into living theatre. Performers undergo decades of rigorous training in body conditioning (meythari), eye movement exercises (netrachaduvu), and codified gesture language to portray gods, demons, heroes, and sages without speaking a single spoken word on stage."
+  },
+  {
+    "_id": "art-2",
+    "id": "art-2",
+    "title": "The 24 Single-Hand Mudras (Asamyukta Hastas)",
+    "category": "technique",
+    "body": "Kathakali's gestural language derives primarily from the Hastalakshana Deepika, an ancient Sanskrit treatise on hand gestures distinct from Bharatanatyam's Natya Shastra. Its 24 root single-hand mudras (Asamyukta Hastas) can be used singly or combined into double-hand gestures (Samyukta Hastas) to generate a vocabulary of over 900 distinct words and poetic phrases, enabling full literary translations of dramatic text entirely through gesture."
+  },
+  {
+    "_id": "art-3",
+    "id": "art-3",
+    "title": "Navarasa — The Nine Expressions",
+    "category": "technique",
+    "body": "Navarasa embodies the nine fundamental emotional states of Indian classical aesthetics: Shringara (love), Hasya (laughter), Karuna (compassion), Raudra (anger), Veera (heroism), Bhayanaka (fear), Bibhatsa (disgust), Adbhuta (wonder), and Shanta (peace). Kathakali performers spend hours daily mastering micro-control over facial muscles, directing emotion through the eyes (drishti) while framing sentiments with coordinated neck and hand movements."
+  },
+  {
+    "_id": "art-4",
+    "id": "art-4",
+    "title": "Vesham: The Five Dramatic Character Archetypes",
+    "category": "costume",
+    "body": "Characters in Kathakali are classified by moral nature rather than physical identity through their Vesham (makeup and costume): Paccha (green makeup representing noble, righteous kings and gods like Arjuna and Krishna); Kathi (knife-shaped cheek markings portraying royal heroes flawed by arrogance like Ravana and Duryodhana); Thadi (bearded types, split into Chuvanna Thadi for evil fiends, Vellathadi for divine beings like Hanuman, and Karutha Thadi for forest hunters); Kari (black makeup for fierce she-demons like Surpanakha); and Minukku (soft, radiant natural makeup for women, sages, and brahmins)."
+  },
+  {
+    "_id": "art-5",
+    "id": "art-5",
+    "title": "Music and Rhythm: The Acoustic Architecture",
+    "category": "music",
+    "body": "Kathakali is accompanied by Sopana Sangeetham vocal singing backed by the resonant Chenda drum, Maddalam barrel drum, Chengila gong, and Elathalam cymbals. The rhythmic cycles (Talas) regulate the tempo of the performance, providing sonic momentum that synchronizes flawlessly with the actor's footwork (chuvatu) and mudra changes."
+  }
+]

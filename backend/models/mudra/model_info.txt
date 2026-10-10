@@ -1,0 +1,9 @@
+Model: Random Forest + normalized geometric features
+Number of classes: 24
+Training samples: 11309
+Validation samples: 1209
+Test samples: 2400
+Validation accuracy: 72.54%
+Test accuracy: 74.21%
+Features: normalized hand geometry
+Input: MediaPipe 21 hand landmarks

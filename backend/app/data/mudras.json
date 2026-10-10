@@ -1,0 +1,218 @@
+[
+  {
+    "_id": "pataka",
+    "id": "pataka",
+    "name": "Pataka",
+    "meaning": "a flag, or signals stopping, blessing, or royal command",
+    "order": 1,
+    "description": "Formed by straightening all fingers close together while bending the thumb slightly inward. Represents victory, banners, divinity, or an authoritative command.",
+    "usage": "Used by heroic Paccha characters like Arjuna or Rama to signal resolve or by divine beings conferring blessings."
+  },
+  {
+    "_id": "mudrakhya",
+    "id": "mudrakhya",
+    "name": "Mudrakhya",
+    "meaning": "indicates a ring, jewel, circular object, or subtle whisper",
+    "order": 2,
+    "description": "Formed by joining the tips of the index finger and thumb together with other fingers extended straight.",
+    "usage": "Depicts signet rings, coins, small precious objects, or whispering secrets into a confidant's ear."
+  },
+  {
+    "_id": "kataka",
+    "id": "kataka",
+    "name": "Kataka",
+    "meaning": "holding something delicately, like a fresh flower, reins, or necklace",
+    "order": 3,
+    "description": "The middle finger and index finger bend toward the thumb while the ring and little fingers curve naturally.",
+    "usage": "Depicts holding celestial flowers, arrows, reins of war chariots, or feminine adornments."
+  },
+  {
+    "_id": "mushti",
+    "id": "mushti",
+    "name": "Mushti",
+    "meaning": "a closed fist — firmness, holding tight, defiance, or grasping a weapon",
+    "order": 4,
+    "description": "All four fingers curled into the palm with the thumb pressed firmly across them.",
+    "usage": "Demonstrates martial valor, striking blows, grasping maces or swords, or resolute defiance."
+  },
+  {
+    "_id": "kartarimukha",
+    "id": "kartarimukha",
+    "name": "Kartarimukha",
+    "meaning": "scissors or arrow — represents separation, opposition, or swift travel",
+    "order": 5,
+    "description": "Index and middle fingers extended apart in a V-shape like scissor blades, while the thumb touches the ring and little fingers.",
+    "usage": "Signifies estrangement between lovers, lightning, paths crossing, or cutting bonds."
+  },
+  {
+    "_id": "sukatunda",
+    "id": "sukatunda",
+    "name": "Sukatunda",
+    "meaning": "a parrot's beak — denotes mystery, secret thoughts, or piercing darts",
+    "order": 6,
+    "description": "The ring finger bent at the knuckle resembling a hooked beak while other fingers are curved softly.",
+    "usage": "Used in scenes of intrigue, romantic teasing, casting mystic darts, or secret inquiries."
+  },
+  {
+    "_id": "kappitthaka",
+    "id": "kappitthaka",
+    "name": "Kappitthaka",
+    "meaning": "holding sacred fruits, offering milk, or performing an invocation",
+    "order": 7,
+    "description": "Thumb pressed against the middle finger while the index bends over the thumb.",
+    "usage": "Associated with offering ritual oblations, gathering wild woodland fruits, or holding sacred vessels."
+  },
+  {
+    "_id": "hamsapaksha",
+    "id": "hamsapaksha",
+    "name": "Hamsapaksha",
+    "meaning": "a swan's wing — flight, spreading waters, gentle breeze, or vast expanse",
+    "order": 8,
+    "description": "The little finger raised gracefully while the other three fingers extend flat with the thumb folded.",
+    "usage": "Depicts gliding across lakes, wind whispering through canopy trees, or ocean waves."
+  },
+  {
+    "_id": "sikhara",
+    "id": "sikhara",
+    "name": "Sikhara",
+    "meaning": "a mountain peak, raising a bow, or expressing a question or argument",
+    "order": 9,
+    "description": "All fingers closed into a fist with the thumb pointed straight upward like a mountain spire.",
+    "usage": "Portrays mighty summits of Gandhamadana, stringing the Gandiva bow, or challenging an adversary."
+  },
+  {
+    "_id": "hamsasyam",
+    "id": "hamsasyam",
+    "name": "Hamsasyam",
+    "meaning": "a swan's beak — denotes softness, plucking pearls, or delicate painting",
+    "order": 10,
+    "description": "Thumb, index, and middle fingertips joined closely while the other two fingers spread gently.",
+    "usage": "Depicts picking jasmine blossoms, touching sacred drops of sandal paste, or tying ornamental silks."
+  },
+  {
+    "_id": "anjali",
+    "id": "anjali",
+    "name": "Anjali",
+    "meaning": "a respectful salutation, reverent offering, or heartfelt prayer",
+    "order": 11,
+    "description": "Palms or fingers brought together in gentle reverence before the chest, throat, or forehead.",
+    "usage": "Offered to preceptors, elder brothers, deities, or as humble supplication before kings."
+  },
+  {
+    "_id": "ardhachandra",
+    "id": "ardhachandra",
+    "name": "Ardhachandra",
+    "meaning": "the crescent moon, receiving grace, or meditative stillness",
+    "order": 12,
+    "description": "Fingers held straight with the thumb stretched widely out to form a luminous crescent curve.",
+    "usage": "Evokes nocturnal skies, the crescent on Shiva's crown, or holding sacred holy water."
+  },
+  {
+    "_id": "mukura",
+    "id": "mukura",
+    "name": "Mukura",
+    "meaning": "a mirror — self-reflection, beauty, vanity, or luminous countenance",
+    "order": 13,
+    "description": "The little finger and thumb raised straight up while middle fingers fold toward the palm.",
+    "usage": "Heroines inspecting their adornments, admiring grace, or characters gazing into reflections."
+  },
+  {
+    "_id": "bhramara",
+    "id": "bhramara",
+    "name": "Bhramara",
+    "meaning": "a buzzing bee — hover over flower nectar, or whisper a secret",
+    "order": 14,
+    "description": "Index finger bent with the thumb touching the middle finger tip while remaining fingers fan out.",
+    "usage": "Portrays spring blossoms, pollinators darting in groves, or stealthy movements."
+  },
+  {
+    "_id": "suchimukha",
+    "id": "suchimukha",
+    "name": "Suchimukha",
+    "meaning": "a sharp needle — pinpointing direction, expressing 'one', or piercing truth",
+    "order": 15,
+    "description": "Index finger extended straight up while all other fingers curl into the thumb.",
+    "usage": "Pointing toward destiny, indicating singular determination, or tracing fine inscriptions."
+  },
+  {
+    "_id": "pallava",
+    "id": "pallava",
+    "name": "Pallava",
+    "meaning": "a tender sprout or young leaf — denotes gentleness, spring, and vitality",
+    "order": 16,
+    "description": "Fingers extended in a loose, graceful cascade resembling young shoots swaying in breeze.",
+    "usage": "Denotes tender affection, spring breeze rustling leaves, or the blossoming of young love."
+  },
+  {
+    "_id": "tripataka",
+    "id": "tripataka",
+    "name": "Tripataka",
+    "meaning": "a three-coloured flag, towering tree, crown, or joyful affirmation",
+    "order": 17,
+    "description": "Pataka gesture with the third finger (ring finger) bent down sharply.",
+    "usage": "Depicts grand trees in royal forests, sacred crowns, Indra's thunderbolt, or affirming 'yes'."
+  },
+  {
+    "_id": "mrigasirsha",
+    "id": "mrigasirsha",
+    "name": "Mrigasirsha",
+    "meaning": "a deer's head — roaming wildlife, gentle fear, or timid innocence",
+    "order": 18,
+    "description": "Thumb and little finger extended upward while index, middle, and ring fingers bend forward.",
+    "usage": "Denotes innocent forest creatures, timid maidens wandering, or seeking solace in wilderness."
+  },
+  {
+    "_id": "sarpasira",
+    "id": "sarpasira",
+    "name": "Sarpasira",
+    "meaning": "a serpent's hood — venom, slithering creepers, or latent danger",
+    "order": 19,
+    "description": "All fingers curved inward into a hollow cupped shape mimicking a cobra's expanded hood.",
+    "usage": "Depicts deadly serpents, poisonous draughts, subterranean realms, or insidious deceit."
+  },
+  {
+    "_id": "vardhamanaka",
+    "id": "vardhamanaka",
+    "name": "Vardhamanaka",
+    "meaning": "growth and expansion — a budding seedling or flourishing fortune",
+    "order": 20,
+    "description": "Fingers folded and uncurling progressively outward from the thumb.",
+    "usage": "Signals increasing prosperity, ripening grain, or an unfolding epic narrative."
+  },
+  {
+    "_id": "arala",
+    "id": "arala",
+    "name": "Arala",
+    "meaning": "a bent curve — drinking poison, violent storms, or turbulent winds",
+    "order": 21,
+    "description": "Index finger curved like a bow while the thumb presses against its base.",
+    "usage": "Portrays drinking the Kalakuta poison, turbulent mountain gales, or heroic exertion."
+  },
+  {
+    "_id": "urnanabha",
+    "id": "urnanabha",
+    "name": "Urnanabha",
+    "meaning": "a spider's claw or demonic grip — ferocity, tearing, or supernatural beasts",
+    "order": 22,
+    "description": "All five fingers separated widely and bent like sharp talons.",
+    "usage": "Used by demonic Thadi or Kari characters like Dussasana or Surpanakha during terrifying combat."
+  },
+  {
+    "_id": "mukula",
+    "id": "mukula",
+    "name": "Mukula",
+    "meaning": "an unopened flower bud, water lily, or the act of feeding",
+    "order": 23,
+    "description": "All five fingertips brought tightly together in a point like an unopened lotus bud.",
+    "usage": "Depicts closed lotuses at sunset, offering morsels, or modesty."
+  },
+  {
+    "_id": "katakamugha",
+    "id": "katakamugha",
+    "name": "Katakamugha",
+    "meaning": "stringing a war bow, releasing arrows, or adorning a garland",
+    "order": 24,
+    "description": "Index and middle fingers closed over the thumb with ring and little fingers extended outward.",
+    "usage": "Depicts archers drawing bows to their ears, shooting divine astras, or clasping battle standards."
+  }
+]

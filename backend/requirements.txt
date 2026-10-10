@@ -1,0 +1,18 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-multipart==0.0.9
+python-dotenv==1.0.1
+websockets==13.1
+httpx==0.27.2
+fpdf2==2.7.9
+
+# --- Real mudra model (backend/models/mudra) ---
+# scikit-learn MUST stay at 1.6.1: the model was pickled with it and sklearn
+# pickles aren't guaranteed to load on other versions.
+scikit-learn==1.6.1
+mediapipe==0.10.33
+# NOTE: mediapipe installs opencv-contrib-python, which is the OpenCV this
+# app uses (cv2). Don't also install opencv-python / opencv-python-headless:
+# two cv2 packages overwrite each other's files and break imports.

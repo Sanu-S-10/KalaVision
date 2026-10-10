@@ -1,0 +1,158 @@
+[
+  {
+    "id": "kalyanasougandhikam",
+    "title": "Kalyanasougandhikam",
+    "playwright": "Kottayam Thampuran",
+    "description": "The epic quest of Bhima to retrieve the celestial fragrant Saugandhika flower for Panchali (Draupadi), culminating in his humbling encounter with his divine elder brother, the immortal monkey Hanuman.",
+    "characters": [
+      {
+        "name": "Bhima",
+        "vesham": "Paccha",
+        "role": "Pandava Prince of immense strength"
+      },
+      {
+        "name": "Panchali",
+        "vesham": "Minukku",
+        "role": "Beloved consort of the Pandavas"
+      },
+      {
+        "name": "Hanuman",
+        "vesham": "Vellathadi (White Beard)",
+        "role": "Immortal divine monkey, son of Vayu"
+      }
+    ],
+    "scenes": [
+      {
+        "scene_number": 1,
+        "title": "The Celestial Fragrance",
+        "setting": "The hermitage at Gandhamadana mountain",
+        "character": "Panchali",
+        "primary_mudras": ["Pataka", "Kataka", "Anjali"],
+        "primary_expressions": ["Shringara", "Karuna"],
+        "narration": "A miraculous fragrant blossom floats down on the breeze. Enraptured by its divine aroma, Panchali shows the bloom to Bhima with tender reverence, imploring him to venture into the high peaks to collect more."
+      },
+      {
+        "scene_number": 2,
+        "title": "March of the Mighty Pandava",
+        "setting": "The impenetrable mountain forest",
+        "character": "Bhima",
+        "primary_mudras": ["Sikhara", "Mushti", "Pataka"],
+        "primary_expressions": ["Veera", "Raudra"],
+        "narration": "Bhima strides through the dense forest like an infuriated tusker. Striking down trees and shattering boulders with his golden mace, his heroic valor shakes the mountain slopes."
+      },
+      {
+        "scene_number": 3,
+        "title": "The Old Monkey on the Trail",
+        "setting": "A narrow mountain pass",
+        "character": "Bhima and Hanuman",
+        "primary_mudras": ["Mudrakhya", "Tripataka", "Mushti"],
+        "primary_expressions": ["Raudra", "Hasya"],
+        "narration": "An ancient, feeble monkey lies sprawled across the mountain pass. Bhima commands him with fierce arrogance to clear the trail, but the elder monkey serenely asks Bhima to merely lift his tail aside."
+      },
+      {
+        "scene_number": 4,
+        "title": "Humbling of Pride & Divine Embrace",
+        "setting": "The summit pass",
+        "character": "Bhima and Hanuman",
+        "primary_mudras": ["Anjali", "Mukura", "Pataka"],
+        "primary_expressions": ["Adbhuta", "Shanta"],
+        "narration": "Straining with all his mountain-cleaving might, Bhima cannot budge the monkey's tail by even a finger's breadth. Overwhelmed by sacred awe, Bhima bows in deep supplication as Hanuman reveals his true celestial form."
+      }
+    ]
+  },
+  {
+    "id": "nalacharitham",
+    "title": "Nalacharitham",
+    "playwright": "Unnayi Variyar",
+    "description": "The poetic romance of King Nala of Nishadha and Princess Damayanti of Vidarbha, bound by love carried across kingdoms on the wings of a golden celestial swan.",
+    "characters": [
+      {
+        "name": "Nala",
+        "vesham": "Paccha",
+        "role": "Noble and handsome king"
+      },
+      {
+        "name": "Damayanti",
+        "vesham": "Minukku",
+        "role": "Princess of radiant beauty"
+      },
+      {
+        "name": "Hamsam",
+        "vesham": "Minukku / Special Bird Mask",
+        "role": "Divine Golden Swan messenger"
+      }
+    ],
+    "scenes": [
+      {
+        "scene_number": 1,
+        "title": "The Royal Grove",
+        "setting": "The enchanted royal garden of Nishadha",
+        "character": "Nala",
+        "primary_mudras": ["Kataka", "Pallava", "Pataka"],
+        "primary_expressions": ["Shanta", "Adbhuta"],
+        "narration": "King Nala wanders into a secluded royal garden in serene contemplation, admiring shimmering lotus ponds and fragrant mango groves."
+      },
+      {
+        "scene_number": 2,
+        "title": "The Golden Swan's Promise",
+        "setting": "Beside the lotus pool",
+        "character": "Nala and Hamsam",
+        "primary_mudras": ["Mudrakhya", "Ardhachandra", "Anjali"],
+        "primary_expressions": ["Adbhuta", "Shringara"],
+        "narration": "Nala captures a miraculous golden swan that pleads for mercy in human speech. Moved by compassion, Nala releases the bird, which in gratitude vows to fly to Vidarbha and awaken Damayanti's heart to his glory."
+      },
+      {
+        "scene_number": 3,
+        "title": "Messenger of Romance",
+        "setting": "Damayanti's maiden bower",
+        "character": "Damayanti and Hamsam",
+        "primary_mudras": ["Anjali", "Mukura", "Pataka"],
+        "primary_expressions": ["Shringara", "Karuna"],
+        "narration": "The golden swan alights softly beside Damayanti, recounting Nala's matchless virtues. The princess is overcome with sweet longing and vows to wed none other than Nala."
+      }
+    ]
+  },
+  {
+    "id": "duryodhanavadham",
+    "title": "Duryodhana Vadham",
+    "playwright": "Vayaskara Mooss",
+    "description": "The dramatic climax of the Mahabharata war on the field of Kurukshetra, depicting the fulfillment of Bhima's terrible vow to vanquish Duryodhana and Dushasana.",
+    "characters": [
+      {
+        "name": "Bhima",
+        "vesham": "Raudra Paccha",
+        "role": "Avenging Pandava champion"
+      },
+      {
+        "name": "Duryodhana",
+        "vesham": "Kathi",
+        "role": "Proud Kaurava sovereign"
+      },
+      {
+        "name": "Dushasana",
+        "vesham": "Chuvanna Thadi (Red Beard)",
+        "role": "Ferocious Kaurava prince"
+      }
+    ],
+    "scenes": [
+      {
+        "scene_number": 1,
+        "title": "The Battlefield Confrontation",
+        "setting": "The dust of Kurukshetra at sunset",
+        "character": "Bhima and Dushasana",
+        "primary_mudras": ["Mushti", "Urnanabha", "Sikhara"],
+        "primary_expressions": ["Raudra", "Veera"],
+        "narration": "Bhima confronts Dushasana amid the clamor of war drums, unleashing all his righteous fury to avenge the dishonor suffered by Panchali in the royal assembly hall."
+      },
+      {
+        "scene_number": 2,
+        "title": "The Final Mace Duel",
+        "setting": "Beside the sacred Dvaipayana lake",
+        "character": "Bhima and Duryodhana",
+        "primary_mudras": ["Pataka", "Mushti", "Katakamugha"],
+        "primary_expressions": ["Veera", "Raudra"],
+        "narration": "The two master mace-warriors engage in a thunderous duel of titans, their colliding maces echoing across the battlefield like lightning clashing upon mountain stone."
+      }
+    ]
+  }
+]
