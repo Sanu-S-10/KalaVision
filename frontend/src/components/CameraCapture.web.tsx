@@ -1,6 +1,8 @@
+import { FlipHorizontal } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { HandSkeletonOverlay } from "./HandSkeletonOverlay";
 import { Badge } from "./ui/Badge";
 import { Card } from "./ui/Card";
 import type { CameraCaptureProps } from "./CameraCapture";
@@ -8,27 +10,41 @@ import type { CameraCaptureProps } from "./CameraCapture";
 type WebCameraState = "idle" | "requesting" | "ready" | "denied" | "unavailable" | "error";
 
 /**
- * Web camera capture — Metro/webpack picks this file automatically on
- * web builds (same component name, `.web.tsx` extension) instead of
- * CameraCapture.tsx. expo-camera's native CameraView is not used here:
- * the browser's own getUserMedia + <video>/<canvas> is the standard,
- * reliable way to grab frames on web, and behaves differently enough
- * from the native camera APIs (permission model, no takePictureAsync
- * equivalent) that sharing one implementation across platforms would be
- * the wrong call — this mirrors the explicit platform split requested
- * for Android vs. Web camera handling.
+ * Web camera capture with real-time Hand Skeleton Overlay.
  */
-export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraCaptureProps) {
+export function CameraCapture({
+  active,
+  samplingFps,
+  onFrame,
+  onError,
+  landmarks,
+  allHands,
+  handDetected = false,
+  facing: initialFacing = "front",
+  onToggleFacing,
+}: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const isCapturingRef = useRef(false);
   const startTimeRef = useRef<number | null>(null);
   const [state, setState] = useState<WebCameraState>("idle");
+  const [internalFacing, setInternalFacing] = useState<"front" | "back">(
+    initialFacing === "back" ? "back" : "front"
+  );
 
-  // Acquire/release the browser camera stream whenever this screen is on
-  // screen, independent of `active` (so the preview can show before the
-  // user presses Start, same as the native camera preview does).
+  const facing = onToggleFacing ? (initialFacing === "back" ? "back" : "front") : internalFacing;
+  const isFront = facing === "front";
+
+  const toggleCameraFacing = () => {
+    if (onToggleFacing) {
+      onToggleFacing();
+    } else {
+      setInternalFacing((cur) => (cur === "front" ? "back" : "front"));
+    }
+  };
+
+  // Acquire/release the browser camera stream
   useEffect(() => {
     let cancelled = false;
 
@@ -38,10 +54,17 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
         onError?.("This browser doesn't support camera access.");
         return;
       }
+
+      // Stop existing stream if switching facing mode
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop());
+        streamRef.current = null;
+      }
+
       setState("requesting");
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
+          video: { facingMode: isFront ? "user" : "environment" },
           audio: false,
         });
         if (cancelled) {
@@ -76,10 +99,9 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
       streamRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isFront]);
 
   // Frame capture loop — draws the live <video> to an offscreen <canvas>
-  // and reads it back as base64 JPEG, at the configured sampling rate.
   useEffect(() => {
     if (!active) {
       startTimeRef.current = null;
@@ -91,7 +113,7 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
     const intervalMs = Math.max(100, Math.round(1000 / samplingFps));
 
     const interval = setInterval(() => {
-      if (isCapturingRef.current) return; // skip a tick rather than queue up
+      if (isCapturingRef.current) return;
       const video = videoRef.current;
       const canvas = canvasRef.current;
       if (!video || !canvas || video.videoWidth === 0) return;
@@ -159,14 +181,40 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
           <Text className="text-ivory/60 text-sm">Requesting camera access...</Text>
         </View>
       ) : null}
+
       {React.createElement("video", {
         ref: videoRef,
         autoPlay: true,
         muted: true,
         playsInline: true,
-        style: { width: "100%", height: "100%", objectFit: "cover" },
+        style: {
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          transform: isFront ? "scaleX(-1)" : "none",
+        },
       })}
+
       {React.createElement("canvas", { ref: canvasRef, style: { display: "none" } })}
+
+      {/* Hand Skeleton Overlay */}
+      <HandSkeletonOverlay
+        landmarks={landmarks}
+        allHands={allHands}
+        handDetected={handDetected}
+        isMirrored={isFront}
+        active={active}
+      />
+
+      {/* Flip camera button */}
+      <TouchableOpacity
+        onPress={toggleCameraFacing}
+        activeOpacity={0.7}
+        style={styles.flipButton}
+      >
+        <FlipHorizontal color="#D4A033" size={18} />
+      </TouchableOpacity>
+
       {active && state === "ready" ? (
         <View className="absolute top-2 right-2">
           <Badge label={`${samplingFps} fps`} tone="gold" />
@@ -175,3 +223,18 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  flipButton: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "rgba(26, 15, 10, 0.75)",
+    padding: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(212, 160, 51, 0.3)",
+    zIndex: 20,
+  },
+});
+

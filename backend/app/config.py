@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     #   "mock" - use mock detector
     #   "real" - always use real adapter
     mudra_model_mode: Literal["auto", "mock", "real"] = "real"
-    expression_model_mode: Literal["auto", "mock", "real"] = "auto"
 
     # Where the KalaVision mudra model package lives (relative paths are
     # resolved against the backend/ folder) and the version it reports.
@@ -35,8 +34,7 @@ class Settings(BaseSettings):
     mudra_model_version: str = "1.0"
 
     # Minimum confidence (0-1) a prediction needs to be shown as a confirmed
-    # result rather than "Uncertain prediction". Applied uniformly to both
-    # mudra and expression predictions; see utils/confidence.py.
+    # result rather than "Uncertain prediction"; see utils/confidence.py.
     confidence_threshold: float = 0.55
 
     # Live-detection temporal smoothing: how many recent frame predictions
@@ -54,7 +52,6 @@ class Settings(BaseSettings):
 
     # Optional HTTP endpoints for models running as separate services.
     mudra_model_api_url: str = ""
-    expression_model_api_url: str = ""
     model_api_timeout_seconds: float = 10.0
 
     # Uploads

@@ -15,10 +15,8 @@ Processing flow:
 """
 import cv2
 
-from app.schemas.prediction import CombinedPrediction, ExpressionPrediction
+from app.schemas.prediction import MudraPrediction
 from app.services.ai.base import (
-    ExpressionModelAdapter,
-    ModelUnavailableError,
     MudraModelAdapter,
     NoDetectionError,
 )
@@ -77,59 +75,35 @@ def extract_sampled_frames_from_path(path: str, sample_fps: float) -> list[tuple
 async def run_detection_on_frames(
     frames: list[tuple[bytes, float]],
     mudra_detector: MudraModelAdapter,
-    expression_detector: ExpressionModelAdapter,
-) -> list[CombinedPrediction]:
+) -> list[MudraPrediction]:
     """Detection stage: runs mudra detector on each sampled frame (frames with
-    no detection are skipped). If mudra model is unavailable, raises
-    ModelUnavailableError. If expression model is unavailable, reports expression
-    as unavailable rather than failing the entire mudra recognition pipeline."""
-    results: list[CombinedPrediction] = []
+    no detection are skipped)."""
+    results: list[MudraPrediction] = []
     for frame_bytes, timestamp in frames:
         try:
             mudra = await mudra_detector.predict(frame_bytes, timestamp)
+            results.append(mudra)
         except NoDetectionError:
             continue
-
-        try:
-            expression = await expression_detector.predict(frame_bytes, timestamp)
-        except (ModelUnavailableError, NoDetectionError):
-            expression = ExpressionPrediction(
-                name="Unavailable",
-                confidence=0.0,
-                timestamp=timestamp,
-                rasa=None,
-                source="real",
-                model_version="n/a",
-                is_uncertain=True,
-            )
-
-        results.append(CombinedPrediction(mudra=mudra, expression=expression))
     return results
 
 
-def apply_temporal_smoothing(predictions: list[CombinedPrediction], window_size: int | None = None) -> list[CombinedPrediction]:
+def apply_temporal_smoothing(predictions: list[MudraPrediction], window_size: int | None = None) -> list[MudraPrediction]:
     """Smoothing stage: run PredictionSmoother across the sampled-frame sequence."""
     mudra_smoother = PredictionSmoother(window_size)
-    expression_smoother = PredictionSmoother(window_size)
-    smoothed: list[CombinedPrediction] = []
+    smoothed: list[MudraPrediction] = []
 
     for pred in predictions:
-        sm = mudra_smoother.push(pred.mudra.name, pred.mudra.confidence, pred.mudra.timestamp)
-        pred.mudra.name, pred.mudra.confidence = sm.name, sm.confidence
-        pred.mudra.is_uncertain = is_uncertain(pred.mudra.confidence)
-
-        if pred.expression.name != "Unavailable":
-            se = expression_smoother.push(pred.expression.name, pred.expression.confidence, pred.expression.timestamp)
-            pred.expression.name, pred.expression.confidence = se.name, se.confidence
-            pred.expression.is_uncertain = is_uncertain(pred.expression.confidence)
-
+        sm = mudra_smoother.push(pred.name, pred.confidence, pred.timestamp)
+        pred.name, pred.confidence = sm.name, sm.confidence
+        pred.is_uncertain = is_uncertain(pred.confidence)
         smoothed.append(pred)
 
     return smoothed
 
 
 async def build_story_for_sequence(
-    predictions: list[CombinedPrediction],
+    predictions: list[MudraPrediction],
     story_engine: StoryEngine,
     knowledge: KnowledgeRepository | None = None,
     character: str | None = None,
@@ -142,11 +116,10 @@ async def build_story_for_sequence(
     interpretations: list[str] = []
 
     for pred in predictions:
-        expr_name = pred.expression.name if pred.expression.name != "Unavailable" else "classical"
-        history.append(DetectionPoint(pred.mudra.name, expr_name, pred.mudra.timestamp))
+        history.append(DetectionPoint(pred.name, pred.timestamp))
         context = context_engine.build_context(history, character=character, scene=scene)
         line = await story_engine.generate_event(
-            pred.mudra.name, expr_name, pred.mudra.timestamp, interpretations, context, knowledge
+            pred.name, pred.timestamp, interpretations, context, knowledge
         )
         interpretations.append(line)
         pred.interpretation = line

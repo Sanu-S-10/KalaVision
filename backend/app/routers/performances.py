@@ -6,7 +6,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 
 from app.schemas.performance import DetectionEvent, OriginalPrediction, PerformanceCreate, PerformanceResponse
 from app.services.ai.base import ModelUnavailableError
-from app.services.ai.model_registry import get_expression_detector, get_mudra_detector
+from app.services.ai.model_registry import get_mudra_detector
 from app.services.knowledge_repository import get_knowledge_repository
 from app.services.session_store import session_store
 from app.services.story_engine import get_story_engine
@@ -54,17 +54,14 @@ def _dict_to_detection_event(doc: dict) -> DetectionEvent:
         performance_id=doc["performance_id"],
         mudra_name=doc["mudra_name"],
         mudra_confidence=doc["mudra_confidence"],
-        expression_name=doc["expression_name"],
-        expression_confidence=doc["expression_confidence"],
         interpretation=doc.get("interpretation"),
         timestamp=doc["timestamp"],
         created_at=doc.get("created_at"),
+        landmarks=doc.get("landmarks", []),
+        hand_detected=doc.get("hand_detected", True),
         source=doc.get("source", "real"),
         model_version=doc.get("model_version", "1.0"),
-        expression_source=doc.get("expression_source", doc.get("source", "real")),
-        expression_model_version=doc.get("expression_model_version", doc.get("model_version", "1.0")),
         mudra_is_uncertain=doc.get("mudra_is_uncertain", False),
-        expression_is_uncertain=doc.get("expression_is_uncertain", False),
         is_corrected=doc.get("is_corrected", False),
         original_prediction=original,
         reviewed_by=doc.get("reviewed_by"),
@@ -150,12 +147,11 @@ async def analyze_video(
         raise bad_request("No frames could be extracted from this video.")
 
     mudra_detector = get_mudra_detector()
-    expression_detector = get_expression_detector()
     story_engine = get_story_engine()
     knowledge = get_knowledge_repository()
 
     try:
-        predictions = await run_detection_on_frames(frames, mudra_detector, expression_detector)
+        predictions = await run_detection_on_frames(frames, mudra_detector)
     except ModelUnavailableError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -177,19 +173,16 @@ async def analyze_video(
         event_dict = {
             "id": str(uuid.uuid4()),
             "performance_id": performance_id,
-            "mudra_name": p.mudra.name,
-            "mudra_confidence": p.mudra.confidence,
-            "expression_name": p.expression.name,
-            "expression_confidence": p.expression.confidence,
+            "mudra_name": p.name,
+            "mudra_confidence": p.confidence,
             "interpretation": p.interpretation,
-            "timestamp": p.mudra.timestamp,
+            "timestamp": p.timestamp,
             "created_at": now,
-            "source": p.mudra.source,
-            "model_version": p.mudra.model_version,
-            "expression_source": p.expression.source,
-            "expression_model_version": p.expression.model_version,
-            "mudra_is_uncertain": p.mudra.is_uncertain,
-            "expression_is_uncertain": p.expression.is_uncertain,
+            "landmarks": [lm.model_dump() for lm in p.landmarks] if p.landmarks else [],
+            "hand_detected": p.hand_detected,
+            "source": p.source,
+            "model_version": p.model_version,
+            "mudra_is_uncertain": p.is_uncertain,
             "is_corrected": False,
             "original_prediction": None,
             "is_deleted": False,
@@ -199,7 +192,7 @@ async def analyze_video(
         if p.interpretation:
             session_store.add_story_event(
                 performance_id,
-                {"text": p.interpretation, "timestamp": p.mudra.timestamp},
+                {"text": p.interpretation, "timestamp": p.timestamp},
             )
         detection_events.append(_dict_to_detection_event(event_dict))
 

@@ -11,9 +11,6 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-/** Read-only timeline (used on Live Performance / Story). For an editable
- * version with correct/delete actions, see DetectionReviewRow + the
- * History screen. */
 export function DetectionTimeline({ events }: { events: DetectionEvent[] }) {
   if (events.length === 0) {
     return (
@@ -26,7 +23,7 @@ export function DetectionTimeline({ events }: { events: DetectionEvent[] }) {
   return (
     <View>
       {events.map((event, idx) => {
-        const uncertain = event.mudra_is_uncertain || event.expression_is_uncertain;
+        const uncertain = event.mudra_is_uncertain;
         return (
           <View key={event.id ?? idx} className="flex-row mb-3">
             <View className="w-14 pt-1">
@@ -34,19 +31,22 @@ export function DetectionTimeline({ events }: { events: DetectionEvent[] }) {
             </View>
             <View className="flex-1 bg-maroon900 border border-gold600/20 rounded-xl p-3">
               <View className="flex-row justify-between items-center">
-                <Text className="text-ivory font-semibold">
+                <Text className="text-ivory font-semibold text-base">
                   {uncertain ? "Uncertain prediction" : event.mudra_name}
                 </Text>
-                <Text className="text-gold400 text-sm">
-                  {event.expression_is_uncertain ? "Uncertain" : event.expression_name}
+                <Text className="text-gold400 text-sm font-medium">
+                  {Math.round((event.mudra_confidence ?? 0) * 100)}%
                 </Text>
               </View>
               <View className="flex-row gap-1.5 mt-1">
                 {uncertain ? <Badge label="Low confidence" tone="vermilion" /> : null}
                 {event.is_corrected ? <Badge label="Corrected" tone="gold" /> : null}
+                {event.hand_detected !== false ? (
+                  <Badge label="Hand tracked" tone="emerald" />
+                ) : null}
               </View>
               {event.interpretation ? (
-                <Text className="text-ivory/70 text-xs mt-1">{event.interpretation}</Text>
+                <Text className="text-ivory/70 text-xs mt-1.5 leading-4">{event.interpretation}</Text>
               ) : null}
             </View>
           </View>
@@ -55,3 +55,4 @@ export function DetectionTimeline({ events }: { events: DetectionEvent[] }) {
     </View>
   );
 }
+

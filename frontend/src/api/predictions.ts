@@ -1,15 +1,16 @@
 import { apiClient } from "./client";
-import type { CombinedPrediction } from "@/types";
+import type { MudraPrediction } from "@/types";
 
-export async function predictCombined(
+export async function predictMudra(
   imageBase64: string,
   performanceId?: string,
   timestamp?: number
-): Promise<CombinedPrediction> {
-  const { data } = await apiClient.post<CombinedPrediction>("/api/predict/combined", {
+): Promise<MudraPrediction> {
+  const { data } = await apiClient.post<MudraPrediction>("/api/predict/mudra", {
     image_base64: imageBase64,
     performance_id: performanceId,
     timestamp,
   });
   return data;
 }
+

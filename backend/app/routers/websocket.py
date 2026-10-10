@@ -4,10 +4,11 @@ WebSocket endpoint for real-time Live Performance detection:
     Camera (frontend) -> frame capture/sampling
         -> base64-encoded frame + timestamp over this WebSocket
         -> KalaVision Mudra Classifier (Random Forest + MediaPipe)
+        -> Hand Landmark Extraction (21 3D points)
         -> Confidence Filtering (is_uncertain)
         -> Temporal Smoothing (PredictionSmoother)
         -> Sequence Context Engine & Story Engine
-        -> WebSocket response -> UI
+        -> WebSocket response -> UI with Hand Skeleton Overlay + Predictions
 """
 import base64
 from datetime import datetime, timezone
@@ -15,9 +16,8 @@ import uuid
 
 from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
-from app.schemas.prediction import ExpressionPrediction
 from app.services.ai.base import ModelUnavailableError, NoDetectionError
-from app.services.ai.model_registry import get_expression_detector, get_mudra_detector
+from app.services.ai.model_registry import get_mudra_detector
 from app.services.context_engine import DetectionPoint, SequenceContextEngine
 from app.services.demo_mode import simulate_performance
 from app.services.knowledge_repository import get_knowledge_repository
@@ -43,7 +43,6 @@ async def live_detection_socket(
                 await websocket.send_json(event)
         else:
             mudra_detector = get_mudra_detector()
-            expression_detector = get_expression_detector()
             story_engine = get_story_engine()
             context_engine = SequenceContextEngine()
             knowledge = get_knowledge_repository()
@@ -58,7 +57,6 @@ async def live_detection_socket(
                 )
 
             mudra_smoother = PredictionSmoother()
-            expression_smoother = PredictionSmoother()
             events_so_far: list[str] = []
             history: list[DetectionPoint] = []
 
@@ -95,43 +93,25 @@ async def live_detection_socket(
                         {
                             "type": "no_detection",
                             "model": exc.model_name,
-                            "message": exc.detail,
+                            "message": exc.detail or "Hand not detected — position your hand inside the frame.",
                             "timestamp": timestamp,
+                            "hand_detected": False,
+                            "landmarks": [],
                         }
                     )
                     continue
 
-                try:
-                    expression = await expression_detector.predict(image_bytes, timestamp)
-                except (ModelUnavailableError, NoDetectionError):
-                    expression = ExpressionPrediction(
-                        name="Unavailable",
-                        confidence=0.0,
-                        timestamp=timestamp,
-                        rasa=None,
-                        source="real",
-                        model_version="n/a",
-                        is_uncertain=True,
-                    )
-
-                # Temporal smoothing
+                # Temporal smoothing for mudra prediction
                 smoothed_mudra = mudra_smoother.push(mudra.name, mudra.confidence, timestamp)
                 mudra.name = smoothed_mudra.name
                 mudra.confidence = smoothed_mudra.confidence
                 mudra.is_uncertain = is_uncertain(mudra.confidence)
 
-                if expression.name != "Unavailable":
-                    smoothed_expr = expression_smoother.push(expression.name, expression.confidence, timestamp)
-                    expression.name = smoothed_expr.name
-                    expression.confidence = smoothed_expr.confidence
-                    expression.is_uncertain = is_uncertain(expression.confidence)
-
-                expr_name = expression.name if expression.name != "Unavailable" else "classical"
-                history.append(DetectionPoint(mudra.name, expr_name, timestamp))
+                history.append(DetectionPoint(mudra_name=mudra.name, timestamp=timestamp))
                 context = context_engine.build_context(history)
 
                 interpretation = await story_engine.generate_event(
-                    mudra.name, expr_name, timestamp, events_so_far, context, knowledge
+                    mudra.name, timestamp, events_so_far, context, knowledge
                 )
                 events_so_far.append(interpretation)
 
@@ -140,17 +120,14 @@ async def live_detection_socket(
                     "performance_id": session_id,
                     "mudra_name": mudra.name,
                     "mudra_confidence": mudra.confidence,
-                    "expression_name": expression.name,
-                    "expression_confidence": expression.confidence,
                     "interpretation": interpretation,
                     "timestamp": timestamp,
                     "created_at": datetime.now(timezone.utc),
                     "source": mudra.source,
                     "model_version": mudra.model_version,
-                    "expression_source": expression.source,
-                    "expression_model_version": expression.model_version,
                     "mudra_is_uncertain": mudra.is_uncertain,
-                    "expression_is_uncertain": expression.is_uncertain,
+                    "hand_detected": mudra.hand_detected,
+                    "landmarks": [lm.model_dump() for lm in mudra.landmarks] if mudra.landmarks else [],
                     "is_corrected": False,
                     "original_prediction": None,
                     "is_deleted": False,
@@ -164,8 +141,11 @@ async def live_detection_socket(
                         "type": "detection",
                         "data": {
                             "mudra": mudra.model_dump(),
-                            "expression": expression.model_dump(),
+                            "hand_detected": mudra.hand_detected,
+                            "landmarks": [lm.model_dump() for lm in mudra.landmarks] if mudra.landmarks else [],
+                            "all_hands": [[lm.model_dump() for lm in hand] for hand in mudra.all_hands] if mudra.all_hands else [],
                             "interpretation": interpretation,
+                            "timestamp": timestamp,
                         },
                         "story_so_far": await story_engine.summarize(events_so_far),
                         "is_stable": smoothed_mudra.is_stable,

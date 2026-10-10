@@ -149,7 +149,7 @@ export default function DashboardScreen() {
       <Text className="text-ivory text-lg font-semibold mb-3">Kathakali Cultural Corpus</Text>
       <Card className="mb-4">
         <Text className="text-ivory/80 font-medium text-sm mb-2">24 Traditional Single-Hand Mudras</Text>
-        <View className="flex-row flex-wrap gap-1.5 mb-4">
+        <View className="flex-row flex-wrap gap-1.5">
           {[
             "Pataka",
             "Mudrakhya",
@@ -177,23 +177,6 @@ export default function DashboardScreen() {
             "Katakamugha",
           ].map((m) => (
             <Badge key={m} label={m} tone="gold" />
-          ))}
-        </View>
-
-        <Text className="text-ivory/80 font-medium text-sm mb-2">Navarasa (Nine Facial Expressions)</Text>
-        <View className="flex-row flex-wrap gap-1.5">
-          {[
-            "Shringara (Love)",
-            "Hasya (Laughter)",
-            "Karuna (Compassion)",
-            "Raudra (Anger)",
-            "Veera (Heroism)",
-            "Bhayanaka (Fear)",
-            "Bibhatsa (Disgust)",
-            "Adbhuta (Wonder)",
-            "Shanta (Peace)",
-          ].map((r) => (
-            <Badge key={r} label={r} tone="emerald" />
           ))}
         </View>
       </Card>

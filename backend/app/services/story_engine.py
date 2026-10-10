@@ -24,11 +24,11 @@ class StoryEngine(ABC):
     async def generate_event(
         self,
         mudra_name: str,
-        expression_name: str,
         timestamp: float,
         previous_events: list[str],
         context: "PerformanceContext | None" = None,
         knowledge: "KnowledgeRepository | None" = None,
+        expression_name: str | None = None,
     ) -> str:
         raise NotImplementedError
 
@@ -41,11 +41,11 @@ class RuleBasedStoryEngine(StoryEngine):
     async def generate_event(
         self,
         mudra_name: str,
-        expression_name: str,
         timestamp: float,
         previous_events: list[str],
         context: "PerformanceContext | None" = None,
         knowledge: "KnowledgeRepository | None" = None,
+        expression_name: str | None = None,
     ) -> str:
         minute, second = divmod(int(timestamp), 60)
         time_label = f"{minute:02d}:{second:02d}"
@@ -59,21 +59,13 @@ class RuleBasedStoryEngine(StoryEngine):
                 f"— cultural interpretation unavailable (not yet in the knowledge base)."
             )
 
-        expr_lower = expression_name.lower()
-        if expr_lower in ("unavailable", "none", "classical"):
-            tone = "in classical Kathakali tradition"
-            sentiment_clause = "embodying the narrative posture"
-        else:
-            tone = (await repo.get_expression_tone(expression_name)) or f"showing {expression_name}"
-            sentiment_clause = f"suggesting a moment of {expr_lower}"
-
         lead_in = "The performer forms"
         scene_prefix = ""
         if context is not None:
             if context.is_held_gesture and context.hold_count >= 3:
                 lead_in = "The performer continues to hold"
             elif context.previous_mudra and context.previous_mudra != mudra_name:
-                lead_in = f"Moving on from {context.previous_mudra}, the performer forms"
+                lead_in = f"Transitioning from {context.previous_mudra}, the performer forms"
 
             if context.character or context.scene:
                 who = context.character or "The performer"
@@ -82,8 +74,8 @@ class RuleBasedStoryEngine(StoryEngine):
                 lead_in = lead_in[0].lower() + lead_in[1:]
 
         return (
-            f"[{time_label}] {scene_prefix}{lead_in} {meaning}, {tone}, "
-            f"{sentiment_clause}."
+            f"[{time_label}] {scene_prefix}{lead_in} {meaning}, "
+            "communicating dramatic intention through classical Kathakali hasta grammar."
         )
 
     async def summarize(self, events: list[str]) -> str:

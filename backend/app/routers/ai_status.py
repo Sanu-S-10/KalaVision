@@ -11,9 +11,9 @@ import numpy as np
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from app.schemas.ai_status import AIStatusResponse
-from app.schemas.prediction import ExpressionPrediction, MudraPrediction
+from app.schemas.prediction import MudraPrediction
 from app.services.ai.base import ModelUnavailableError, NoDetectionError
-from app.services.ai.model_registry import get_ai_status, get_expression_detector, get_mudra_detector
+from app.services.ai.model_registry import get_ai_status, get_mudra_detector
 
 router = APIRouter(prefix="/api/ai", tags=["ai-status"])
 
@@ -44,8 +44,7 @@ def _no_detection_response(exc: NoDetectionError, used_placeholder: bool) -> HTT
 
 @router.get("/status", response_model=AIStatusResponse)
 async def ai_status():
-    """Reports whether the mudra and expression models are connected,
-    unavailable, or running in demo mode, plus metadata."""
+    """Reports whether the mudra model is connected, unavailable, or running in demo mode."""
     return await get_ai_status()
 
 
@@ -54,22 +53,6 @@ async def test_mudra_model(file: UploadFile | None = File(default=None)):
     """Quick connectivity check for whichever mudra adapter is currently registered."""
     image_bytes = await file.read() if file is not None else _placeholder_frame()
     detector = get_mudra_detector()
-    try:
-        return await detector.predict(image_bytes, 0.0)
-    except ModelUnavailableError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail={"error": "model_unavailable", "model": exc.model_name, "message": exc.detail},
-        ) from exc
-    except NoDetectionError as exc:
-        raise _no_detection_response(exc, used_placeholder=file is None) from exc
-
-
-@router.post("/test/expression", response_model=ExpressionPrediction)
-async def test_expression_model(file: UploadFile | None = File(default=None)):
-    """Quick connectivity check for whichever expression adapter is currently registered."""
-    image_bytes = await file.read() if file is not None else _placeholder_frame()
-    detector = get_expression_detector()
     try:
         return await detector.predict(image_bytes, 0.0)
     except ModelUnavailableError as exc:

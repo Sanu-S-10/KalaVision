@@ -11,6 +11,7 @@
       "backgroundColor": "#1A0F0A"
     },
     "assetBundlePatterns": ["**/*"],
+    "platforms": ["android", "ios", "web"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kalavision.ai"
@@ -31,7 +32,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "KalaVision AI needs camera access to detect mudras and expressions live."
+          "cameraPermission": "KalaVision AI needs camera access to detect Kathakali mudras live."
         }
       ]
     ],

@@ -39,7 +39,7 @@ from pathlib import Path
 import numpy as np
 
 from app.schemas.ai_status import ModelInfo
-from app.schemas.prediction import BoundingBox, MudraPrediction
+from app.schemas.prediction import BoundingBox, LandmarkPoint, MudraPrediction
 from app.services.ai.base import ModelUnavailableError, MudraModelAdapter, NoDetectionError
 # The canonical mudra names used by the Knowledge Base (see
 # app/data/mudras.json). The model's own labels are mapped onto these so the Story
@@ -187,8 +187,8 @@ class KalaVisionMudraAdapter(MudraModelAdapter):
                 base_options=mp_python.BaseOptions(
                     model_asset_path=str(self.model_dir / _LANDMARKER_FILE)
                 ),
-                running_mode=vision.RunningMode.IMAGE,  # frames are independent samples, not a continuous video
-                num_hands=1,  # these are single-hand mudras
+                running_mode=vision.RunningMode.IMAGE,  # frames are independent samples
+                num_hands=2,  # detect left and right hands without mixing
                 min_hand_detection_confidence=self._min_hand_confidence,
             )
         )
@@ -225,6 +225,17 @@ class KalaVisionMudraAdapter(MudraModelAdapter):
         if not result.hand_landmarks:
             raise NoDetectionError(MODEL_NAME, "No hand detected in the frame.")
 
+        # Extract 21 landmarks for all detected hands
+        all_hands_landmarks: list[list[LandmarkPoint]] = []
+        for hand in result.hand_landmarks:
+            hand_pts = [
+                LandmarkPoint(x=round(float(p.x), 4), y=round(float(p.y), 4), z=round(float(p.z), 4))
+                for p in hand
+            ]
+            all_hands_landmarks.append(hand_pts)
+
+        primary_hand_landmarks = all_hands_landmarks[0] if all_hands_landmarks else []
+
         points = np.array([[p.x, p.y, p.z] for p in result.hand_landmarks[0]], dtype=np.float64)
         normalized = normalize_landmarks(points)
         if normalized is None:
@@ -245,6 +256,9 @@ class KalaVisionMudraAdapter(MudraModelAdapter):
             confidence=round(confidence, 4),
             timestamp=timestamp,
             bounding_box=box,
+            landmarks=primary_hand_landmarks,
+            all_hands=all_hands_landmarks,
+            hand_detected=True,
             source="real",
             model_version=self.version,
             is_uncertain=is_uncertain(confidence),

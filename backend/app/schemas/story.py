@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class StoryEventRequest(BaseModel):
     performance_id: str
     mudra_name: str
-    expression_name: str
     timestamp: float
 
 
@@ -15,7 +14,6 @@ class StoryEvent(BaseModel):
     performance_id: str
     text: str
     mudra_name: str
-    expression_name: str
     timestamp: float
     created_at: datetime | None = None
 

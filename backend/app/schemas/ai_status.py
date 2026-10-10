@@ -20,4 +20,3 @@ class ModelInfo(BaseModel):
 class AIStatusResponse(BaseModel):
     demo_mode: bool
     mudra_model: ModelInfo
-    expression_model: ModelInfo

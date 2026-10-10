@@ -2,27 +2,25 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 import { describeApiError } from "@/api/client";
-import { listArticles, listExpressionReference, listMudraReference } from "@/api/knowledge";
+import { listArticles, listMudraReference } from "@/api/knowledge";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { LoadingState } from "@/components/ui/LoadingState";
-import type { ExpressionReference, KnowledgeArticle, MudraReference } from "@/types";
+import type { KnowledgeArticle, MudraReference } from "@/types";
 
-type Tab = "mudras" | "expressions" | "articles";
+type Tab = "mudras" | "articles";
 
 export default function KnowledgeBaseScreen() {
   const [tab, setTab] = useState<Tab>("mudras");
   const [mudras, setMudras] = useState<MudraReference[]>([]);
-  const [expressions, setExpressions] = useState<ExpressionReference[]>([]);
   const [articles, setArticles] = useState<KnowledgeArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([listMudraReference(), listExpressionReference(), listArticles()])
-      .then(([m, e, a]) => {
+    Promise.all([listMudraReference(), listArticles()])
+      .then(([m, a]) => {
         setMudras(m);
-        setExpressions(e);
         setArticles(a);
       })
       .catch((err) => setError(describeApiError(err)))
@@ -41,7 +39,7 @@ export default function KnowledgeBaseScreen() {
       <Text className="text-ivory text-xl font-bold mb-4">Knowledge Base</Text>
 
       <View className="flex-row gap-2 mb-5">
-        {(["mudras", "expressions", "articles"] as Tab[]).map((t) => (
+        {(["mudras", "articles"] as Tab[]).map((t) => (
           <View key={t} {...{ onTouchEnd: () => setTab(t) }}>
             <Badge label={t[0].toUpperCase() + t.slice(1)} tone={tab === t ? "gold" : "neutral"} />
           </View>
@@ -58,17 +56,6 @@ export default function KnowledgeBaseScreen() {
           </Card>
         ))}
 
-      {tab === "expressions" &&
-        expressions.map((e) => (
-          <Card key={e._id} className="mb-2.5">
-            <View className="flex-row justify-between items-center">
-              <Text className="text-ivory font-semibold">{e.name}</Text>
-              <Badge label={e.rasa} tone="emerald" />
-            </View>
-            <Text className="text-ivory/60 text-sm mt-1">{e.description}</Text>
-          </Card>
-        ))}
-
       {tab === "articles" &&
         articles.map((a) => (
           <Card key={a._id} className="mb-2.5">
@@ -80,3 +67,4 @@ export default function KnowledgeBaseScreen() {
     </ScrollView>
   );
 }
+

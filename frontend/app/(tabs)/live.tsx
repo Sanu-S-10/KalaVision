@@ -2,7 +2,6 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
-import { describeApiError } from "@/api/client";
 import { createPerformance, endPerformance } from "@/api/performances";
 import { generateReport } from "@/api/reports";
 import { CameraCapture } from "@/components/CameraCapture";
@@ -13,8 +12,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useLiveDetectionSocket } from "@/hooks/useWebSocket";
 import { saveOrShareBlob } from "@/utils/exportFile";
-import { overallSourceLabel } from "@/utils/modelSource";
-import type { CombinedPrediction, DetectionEvent, LiveErrorMessage, ReportFormat } from "@/types";
+import { sourceLabel } from "@/utils/modelSource";
+import type { DetectionEvent, LandmarkPoint, LiveDetectionPayload, LiveErrorMessage, ReportFormat } from "@/types";
 
 const DEFAULT_SAMPLE_FPS = Number(process.env.EXPO_PUBLIC_LIVE_SAMPLE_FPS ?? 2);
 const SAMPLE_FPS_OPTIONS = [1, 2, 3, 5];
@@ -32,9 +31,11 @@ const REPORT_MIME: Record<ReportFormat, string> = {
  *     -> sample frames at configurable FPS
  *     -> WebSocket (useLiveDetectionSocket)
  *     -> FastAPI -> KalaVision Mudra Classifier (Random Forest + MediaPipe)
+ *     -> 21 3D Hand Landmarks extracted & sent back
+ *     -> Real-time Hand Skeleton Overlay rendered on camera image
  *     -> confidence filtering -> temporal smoothing
  *     -> Detection Event back over WebSocket
- *     -> UI (MudraDetectionCard, DetectionTimeline, Report Export)
+ *     -> UI (HandSkeletonOverlay, MudraDetectionCard, DetectionTimeline, Report Export)
  */
 export default function LivePerformanceScreen() {
   const params = useLocalSearchParams<{ demo?: string }>();
@@ -42,7 +43,11 @@ export default function LivePerformanceScreen() {
   const [sampleFps, setSampleFps] = useState(DEFAULT_SAMPLE_FPS || 2);
   const [sessionActive, setSessionActive] = useState(false);
   const [performanceId, setPerformanceId] = useState<string | null>(null);
-  const [latest, setLatest] = useState<CombinedPrediction | null>(null);
+  const [latest, setLatest] = useState<LiveDetectionPayload | null>(null);
+  const [landmarks, setLandmarks] = useState<LandmarkPoint[] | null>(null);
+  const [allHands, setAllHands] = useState<LandmarkPoint[][] | null>(null);
+  const [handDetected, setHandDetected] = useState(false);
+  const [cameraFacing, setCameraFacing] = useState<"front" | "back">("front");
   const [isStable, setIsStable] = useState(true);
   const [storySoFar, setStorySoFar] = useState<string>("");
   const [timeline, setTimeline] = useState<DetectionEvent[]>([]);
@@ -56,33 +61,42 @@ export default function LivePerformanceScreen() {
     performanceId: performanceId ?? undefined,
     enabled: sessionActive,
     onMessage: (message) => {
-      const combined = message.data;
+      const payload = message.data;
       setModelError(null);
       setNoDetection(null);
-      setLatest(combined);
+      setLatest(payload);
+      const isDetected = payload.hand_detected ?? payload.mudra.hand_detected ?? true;
+      setHandDetected(isDetected);
+      setLandmarks(payload.landmarks ?? payload.mudra.landmarks ?? null);
+      setAllHands(payload.all_hands ?? payload.mudra.all_hands ?? null);
       setIsStable(message.is_stable ?? true);
       setStorySoFar(message.story_so_far);
+
       setTimeline((prev) => [
         ...prev,
         {
           performance_id: performanceId ?? "live_session",
-          mudra_name: combined.mudra.name,
-          mudra_confidence: combined.mudra.confidence,
-          expression_name: combined.expression.name,
-          expression_confidence: combined.expression.confidence,
-          interpretation: combined.interpretation,
-          timestamp: combined.mudra.timestamp,
-          source: combined.mudra.source,
-          model_version: combined.mudra.model_version,
-          mudra_is_uncertain: combined.mudra.is_uncertain,
-          expression_is_uncertain: combined.expression.is_uncertain,
+          mudra_name: payload.mudra.name,
+          mudra_confidence: payload.mudra.confidence,
+          interpretation: payload.interpretation,
+          timestamp: payload.mudra.timestamp,
+          source: payload.mudra.source,
+          model_version: payload.mudra.model_version,
+          mudra_is_uncertain: payload.mudra.is_uncertain,
+          hand_detected: isDetected,
+          landmarks: payload.landmarks ?? payload.mudra.landmarks,
           is_corrected: false,
           is_deleted: false,
         },
       ]);
     },
     onModelError: (err) => setModelError(err),
-    onNoDetection: (msg) => setNoDetection(msg.message),
+    onNoDetection: (msg) => {
+      setNoDetection(msg.message || "Hand not detected — position your hand inside the frame.");
+      setHandDetected(false);
+      setLandmarks(null);
+      setAllHands(null);
+    },
   });
 
   const cameraActive = sessionActive && !demoMode && status === "open";
@@ -97,6 +111,9 @@ export default function LivePerformanceScreen() {
   const startSession = async () => {
     setTimeline([]);
     setLatest(null);
+    setLandmarks(null);
+    setAllHands(null);
+    setHandDetected(false);
     setStorySoFar("");
     setModelError(null);
     setCameraError(null);
@@ -104,7 +121,7 @@ export default function LivePerformanceScreen() {
     if (!demoMode) {
       try {
         const perf = await createPerformance({
-          title: `Live session ${new Date().toLocaleString()}`,
+          title: `Live Kathakali Session ${new Date().toLocaleDateString()}`,
           mode: "live",
         });
         setPerformanceId(perf.id);
@@ -117,6 +134,9 @@ export default function LivePerformanceScreen() {
 
   const stopSession = async () => {
     setSessionActive(false);
+    setHandDetected(false);
+    setLandmarks(null);
+    setAllHands(null);
     if (performanceId) {
       try {
         await endPerformance(performanceId);
@@ -141,8 +161,8 @@ export default function LivePerformanceScreen() {
       };
       const blob = await generateReport(payload, format);
       await saveOrShareBlob(blob, `kalavision_live_report.${format}`, REPORT_MIME[format]);
-    } catch (e) {
-      // Handle error silently or alert
+    } catch {
+      // Handle error silently
     } finally {
       setExportingFormat(null);
     }
@@ -161,14 +181,14 @@ export default function LivePerformanceScreen() {
           tone={status === "open" ? "emerald" : status === "error" ? "vermilion" : "neutral"}
         />
         {demoMode ? (
-          <Badge label="DEMO / MOCK MODEL" tone="gold" />
+          <Badge label="DEMO MODE (SYNTHETIC)" tone="gold" />
         ) : latest ? (
           <Badge
-            label={overallSourceLabel(latest.mudra.source, latest.expression.source).label}
-            tone={overallSourceLabel(latest.mudra.source, latest.expression.source).tone}
+            label={sourceLabel(latest.mudra.source).label}
+            tone={sourceLabel(latest.mudra.source).tone}
           />
         ) : (
-          <Badge label="Real Camera Mode" tone="emerald" />
+          <Badge label="REAL CAMERA AI MODE" tone="emerald" />
         )}
       </View>
 
@@ -216,11 +236,12 @@ export default function LivePerformanceScreen() {
         <Card className="mb-4 bg-gold500/10 border-gold500/40">
           <Text className="text-gold400 font-semibold mb-1">No Hand Detected</Text>
           <Text className="text-ivory/70 text-sm">
-            {noDetection} Please hold your hand clearly in front of the camera.
+            {noDetection}
           </Text>
         </Card>
       ) : null}
 
+      {/* Primary Focus: Live Camera Feed with Hand Skeleton Overlay */}
       {!demoMode ? (
         <View className="mb-4">
           <CameraCapture
@@ -228,14 +249,23 @@ export default function LivePerformanceScreen() {
             samplingFps={sampleFps}
             onFrame={handleFrame}
             onError={setCameraError}
+            landmarks={landmarks}
+            allHands={allHands}
+            handDetected={handDetected}
+            facing={cameraFacing}
+            onToggleFacing={() => setCameraFacing((f) => (f === "front" ? "back" : "front"))}
           />
         </View>
       ) : (
         <Card className="mb-4 items-center justify-center py-10">
-          <Text className="text-ivory/50 text-sm">Simulated performance — no camera feed</Text>
+          <Text className="text-gold400 font-medium text-base mb-1">Demo Mode Active</Text>
+          <Text className="text-ivory/60 text-xs text-center max-w-xs">
+            Synthesizing canonical Kathakali mudras, 21-point hand skeletons, confidences, and story beats.
+          </Text>
         </Card>
       )}
 
+      {/* Start / Pause / Stop controls */}
       <View className="mb-4">
         {!sessionActive ? (
           <Button label={demoMode ? "Start Demo" : "Start Live Session"} onPress={startSession} />
@@ -247,7 +277,7 @@ export default function LivePerformanceScreen() {
       {!sessionActive ? (
         <View className="mb-4">
           <Button
-            label={demoMode ? "Switch to Real Camera" : "Switch to Demo Mode"}
+            label={demoMode ? "Switch to Real Camera Mode" : "Switch to Demo Mode"}
             variant="outline"
             onPress={() => setDemoMode((d) => !d)}
           />
@@ -259,7 +289,7 @@ export default function LivePerformanceScreen() {
         <Card className="mb-4 bg-gold500/10 border-gold500/40">
           <Text className="text-gold400 font-semibold mb-1">Session Complete</Text>
           <Text className="text-ivory/70 text-sm mb-3">
-            {timeline.length} gestures detected during this session. Export the full performance report:
+            {timeline.length} Kathakali mudras detected. Export the performance report:
           </Text>
           <View className="flex-row flex-wrap gap-2">
             <Button
@@ -286,7 +316,7 @@ export default function LivePerformanceScreen() {
 
       {sessionActive && latest ? (
         <View className="mb-2 self-start">
-          <Badge label={isStable ? "Stable" : "Stabilizing..."} tone={isStable ? "emerald" : "gold"} />
+          <Badge label={isStable ? "Stable Mudra" : "Stabilizing..."} tone={isStable ? "emerald" : "gold"} />
         </View>
       ) : null}
 
@@ -294,13 +324,16 @@ export default function LivePerformanceScreen() {
 
       {storySoFar ? (
         <Card className="mt-4">
-          <Text className="text-ivory/50 text-xs uppercase tracking-wide mb-1">Story So Far</Text>
+          <Text className="text-ivory/50 text-xs uppercase tracking-wide mb-1">Cultural Narrative So Far</Text>
           <Text className="text-ivory/90 text-sm leading-5">{storySoFar}</Text>
         </Card>
       ) : null}
 
-      <Text className="text-ivory text-lg font-semibold mt-6 mb-3">Detection Timeline</Text>
+      <Text className="text-ivory text-lg font-semibold mt-6 mb-3">
+        Mudra Detection Timeline ({timeline.length})
+      </Text>
       <DetectionTimeline events={timeline} />
     </ScrollView>
   );
 }
+

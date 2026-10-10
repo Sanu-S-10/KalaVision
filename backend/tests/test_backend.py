@@ -31,7 +31,7 @@ def test_ai_status(client):
     assert response.status_code == 200
     data = response.json()
     assert "mudra_model" in data
-    assert "expression_model" in data
+    assert "expression_model" not in data
     assert data["demo_mode"] is False
     assert data["mudra_model"]["name"] == "KalaVision Mudra Classifier"
     assert data["mudra_model"]["status"] in ("connected", "unavailable")
@@ -54,17 +54,6 @@ def test_knowledge_mudra_detail(client):
     data = response.json()
     assert data["name"] == "Pataka"
     assert "flag" in data["meaning"].lower()
-
-
-def test_knowledge_expressions(client):
-    response = client.get("/api/knowledge/expressions")
-    assert response.status_code == 200
-    expressions = response.json()
-    assert len(expressions) == 9
-    names = [e["name"] for e in expressions]
-    assert "Shringara" in names
-    assert "Raudra" in names
-    assert "Shanta" in names
 
 
 def test_knowledge_articles(client):
@@ -95,14 +84,12 @@ def test_story_event_generation(client):
     payload = {
         "performance_id": "test_session_1",
         "mudra_name": "Pataka",
-        "expression_name": "Veera",
         "timestamp": 12.5,
     }
     response = client.post("/api/story/event", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["mudra_name"] == "Pataka"
-    assert data["expression_name"] == "Veera"
     assert "Pataka" in data["text"] or "flag" in data["text"]
 
 
@@ -131,14 +118,13 @@ def test_performance_session_management(client):
         "performance_id": pid,
         "mudra_name": "Pataka",
         "mudra_confidence": 0.88,
-        "expression_name": "Veera",
-        "expression_confidence": 0.75,
-        "interpretation": "The performer forms a flag.",
+        "interpretation": "The performer forms a flag gesture.",
         "timestamp": 2.0,
         "source": "real",
         "model_version": "1.0",
         "mudra_is_uncertain": False,
-        "expression_is_uncertain": False,
+        "hand_detected": True,
+        "landmarks": [{"x": 0.5, "y": 0.5, "z": 0.0}],
         "is_corrected": False,
         "is_deleted": False,
     })
@@ -174,12 +160,9 @@ def test_direct_report_generation(client):
                 "timestamp": 1.0,
                 "mudra_name": "Kataka",
                 "mudra_confidence": 0.92,
-                "expression_name": "Shringara",
-                "expression_confidence": 0.85,
                 "interpretation": "Holding a flower delicately.",
                 "source": "real",
                 "mudra_is_uncertain": False,
-                "expression_is_uncertain": False,
                 "is_corrected": False,
             }
         ],
@@ -209,3 +192,19 @@ def test_landmark_normalization():
     norm = normalize_landmarks(points)
     assert norm is not None
     assert norm.shape == (21, 3)
+
+
+@pytest.mark.asyncio
+async def test_mock_detector_generates_landmarks():
+    from app.services.ai.mock_mudra_detector import MockMudraDetector
+    detector = MockMudraDetector()
+    pred = await detector.predict(b"fake_jpeg", 1.0)
+    assert pred.name in detector._rng.__class__.__name__ or len(pred.name) > 0
+    assert pred.hand_detected is True
+    assert len(pred.landmarks) == 21
+    assert len(pred.all_hands) == 1
+    assert len(pred.all_hands[0]) == 21
+    for lm in pred.landmarks:
+        assert 0.0 <= lm.x <= 1.0
+        assert 0.0 <= lm.y <= 1.0
+

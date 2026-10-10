@@ -1,42 +1,58 @@
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import { FlipHorizontal } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+import { HandSkeletonOverlay } from "./HandSkeletonOverlay";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import { Card } from "./ui/Card";
+import type { LandmarkPoint } from "@/types";
 
 export interface CameraCaptureProps {
-  /** Whether the capture loop should be running. Toggling this false
-   * stops the interval and resets the elapsed-time clock, so a new
-   * session starts timestamps back at 0. */
+  /** Whether the capture loop should be running. */
   active: boolean;
-  /** Frames captured per second — configurable (see live.tsx, which reads
-   * EXPO_PUBLIC_LIVE_SAMPLE_FPS and lets the user override it). Kept low
-   * by default on purpose: capturing/encoding every camera frame would
-   * both waste bandwidth and risk queueing captures faster than the
-   * backend (or the network) can keep up with. */
+  /** Frames captured per second. */
   samplingFps: number;
-  /** Called with a raw base64 JPEG (no data: prefix) and a timestamp in
-   * seconds since this capture session became active. */
+  /** Called with a raw base64 JPEG and timestamp in seconds. */
   onFrame: (base64: string, timestampSeconds: number) => void;
   onError?: (message: string) => void;
+  landmarks?: LandmarkPoint[] | null;
+  allHands?: LandmarkPoint[][] | null;
+  handDetected?: boolean;
+  facing?: CameraType;
+  onToggleFacing?: () => void;
 }
 
 /**
- * Native (Android/iOS) camera capture — this file is picked by Metro's
- * platform resolution for any platform OTHER than web; see
- * CameraCapture.web.tsx for the browser implementation. Capture happens
- * via expo-camera's CameraView.takePictureAsync on an interval, guarded
- * so a slow capture never overlaps the next tick (keeping the UI thread
- * free rather than queueing up a backlog of frames).
+ * Native (Android/iOS) camera capture with real-time Hand Skeleton Overlay.
  */
-export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraCaptureProps) {
+export function CameraCapture({
+  active,
+  samplingFps,
+  onFrame,
+  onError,
+  landmarks,
+  allHands,
+  handDetected = false,
+  facing: initialFacing = "front",
+  onToggleFacing,
+}: CameraCaptureProps) {
   const [permission, requestPermission] = useCameraPermissions();
+  const [internalFacing, setInternalFacing] = useState<CameraType>(initialFacing);
   const cameraRef = useRef<CameraView>(null);
   const isCapturingRef = useRef(false);
   const startTimeRef = useRef<number | null>(null);
   const [cameraReady, setCameraReady] = useState(false);
+
+  const facing = onToggleFacing ? initialFacing : internalFacing;
+  const toggleCameraFacing = () => {
+    if (onToggleFacing) {
+      onToggleFacing();
+    } else {
+      setInternalFacing((cur) => (cur === "front" ? "back" : "front"));
+    }
+  };
 
   useEffect(() => {
     if (!active) {
@@ -49,7 +65,7 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
     const intervalMs = Math.max(100, Math.round(1000 / samplingFps));
 
     const interval = setInterval(async () => {
-      if (isCapturingRef.current || !cameraRef.current) return; // skip a tick rather than queue up
+      if (isCapturingRef.current || !cameraRef.current) return;
       isCapturingRef.current = true;
       try {
         const result = await cameraRef.current.takePictureAsync({
@@ -84,7 +100,7 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
       <Card className="items-center justify-center py-10">
         <Text className="text-ivory font-semibold mb-2">Camera permission denied</Text>
         <Text className="text-ivory/60 text-sm text-center mb-4">
-          KalaVision AI needs camera access to detect mudras and expressions live.
+          KalaVision AI needs camera access to detect Kathakali mudras live.
         </Text>
         <Button label="Grant permission" onPress={requestPermission} />
       </Card>
@@ -92,13 +108,32 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
   }
 
   return (
-    <Card className="p-0 overflow-hidden aspect-[3/4]">
+    <Card className="p-0 overflow-hidden aspect-[3/4] relative">
       <CameraView
         ref={cameraRef}
         style={{ flex: 1 }}
-        facing={"front" as CameraType}
+        facing={facing}
         onCameraReady={() => setCameraReady(true)}
       />
+
+      {/* Hand Skeleton Overlay */}
+      <HandSkeletonOverlay
+        landmarks={landmarks}
+        allHands={allHands}
+        handDetected={handDetected}
+        isMirrored={facing === "front"}
+        active={active}
+      />
+
+      {/* Flip camera button */}
+      <TouchableOpacity
+        onPress={toggleCameraFacing}
+        activeOpacity={0.7}
+        style={styles.flipButton}
+      >
+        <FlipHorizontal color="#D4A033" size={18} />
+      </TouchableOpacity>
+
       {active ? (
         <View className="absolute top-2 right-2">
           <Badge label={`${samplingFps} fps`} tone="gold" />
@@ -107,3 +142,18 @@ export function CameraCapture({ active, samplingFps, onFrame, onError }: CameraC
     </Card>
   );
 }
+
+const styles = StyleSheet.create({
+  flipButton: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "rgba(26, 15, 10, 0.75)",
+    padding: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(212, 160, 51, 0.3)",
+    zIndex: 20,
+  },
+});
+

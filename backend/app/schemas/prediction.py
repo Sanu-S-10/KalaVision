@@ -1,10 +1,11 @@
 """
-This file defines the ONE contract every AI model — mock or real, whatever
+This file defines the ONE contract every AI mudra model — mock or real, whatever
 framework it's built in (TensorFlow, PyTorch, YOLO, MediaPipe, CNN, LSTM...) —
 must produce. The frontend and the rest of the backend only ever see this
 shape, so swapping a mock detector for a teammate's real model later means
-writing a new adapter that returns `MudraPrediction` / `ExpressionPrediction`,
+writing a new adapter that returns `MudraPrediction`,
 not touching any downstream code.
+
 
 `source` and `model_version` make it possible to tell, anywhere downstream
 (API response, stored detection, analytics, UI), whether a given result came
@@ -28,29 +29,23 @@ class BoundingBox(BaseModel):
     height: float
 
 
+class LandmarkPoint(BaseModel):
+    x: float  # Normalized [0.0, 1.0] across image width
+    y: float  # Normalized [0.0, 1.0] down image height
+    z: float = 0.0  # Relative depth
+
+
 class MudraPrediction(BaseModel):
     name: str
     confidence: float = Field(ge=0.0, le=1.0)
     timestamp: float  # seconds into the performance/video
     bounding_box: BoundingBox | None = None
-    source: PredictionSource = "mock"
-    model_version: str = "mock-1.0"
+    landmarks: list[LandmarkPoint] = Field(default_factory=list)
+    all_hands: list[list[LandmarkPoint]] = Field(default_factory=list)
+    hand_detected: bool = True
+    source: PredictionSource = "real"
+    model_version: str = "1.0"
     is_uncertain: bool = False
-
-
-class ExpressionPrediction(BaseModel):
-    name: str
-    confidence: float = Field(ge=0.0, le=1.0)
-    timestamp: float
-    rasa: str | None = None  # navarasa category, if applicable
-    source: PredictionSource = "mock"
-    model_version: str = "mock-1.0"
-    is_uncertain: bool = False
-
-
-class CombinedPrediction(BaseModel):
-    mudra: MudraPrediction
-    expression: ExpressionPrediction
     interpretation: str | None = None
 
 

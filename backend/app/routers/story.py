@@ -26,15 +26,14 @@ async def create_story_event(payload: StoryEventRequest):
         e["text"] for e in (session.get("story_events", []) if session else []) if e.get("text")
     ]
     history = [
-        DetectionPoint(d["mudra_name"], d["expression_name"], d["timestamp"])
+        DetectionPoint(d["mudra_name"], d["timestamp"])
         for d in (session.get("detections", []) if session else [])
-    ] + [DetectionPoint(payload.mudra_name, payload.expression_name, payload.timestamp)]
+    ] + [DetectionPoint(payload.mudra_name, payload.timestamp)]
 
     context = _context_engine.build_context(history, character=character, scene=scene)
 
     text = await story_engine.generate_event(
         payload.mudra_name,
-        payload.expression_name,
         payload.timestamp,
         previous_texts,
         context,
@@ -46,7 +45,6 @@ async def create_story_event(payload: StoryEventRequest):
         "performance_id": payload.performance_id,
         "text": text,
         "mudra_name": payload.mudra_name,
-        "expression_name": payload.expression_name,
         "timestamp": payload.timestamp,
         "created_at": datetime.now(timezone.utc),
     }

@@ -104,9 +104,6 @@ export default function StoryInterpretationScreen() {
                 {scene.primary_mudras.map((m) => (
                   <Badge key={m} label={`Mudra: ${m}`} tone="gold" />
                 ))}
-                {scene.primary_expressions.map((e) => (
-                  <Badge key={e} label={`Rasa: ${e}`} tone="emerald" />
-                ))}
               </View>
 
               <Text className="text-ivory/80 text-sm leading-5 mt-1 border-t border-ivory/10 pt-2">

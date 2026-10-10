@@ -36,11 +36,8 @@ class PerformanceResponse(BaseModel):
 class OriginalPrediction(BaseModel):
     mudra_name: str
     mudra_confidence: float
-    expression_name: str
-    expression_confidence: float
     source: str | None = None
     model_version: str | None = None
-    expression_source: str | None = None
 
 
 class DetectionEvent(BaseModel):
@@ -48,18 +45,15 @@ class DetectionEvent(BaseModel):
     performance_id: str
     mudra_name: str
     mudra_confidence: float
-    expression_name: str
-    expression_confidence: float
     interpretation: str | None = None
     timestamp: float
     created_at: datetime | None = None
+    landmarks: list[dict] = Field(default_factory=list)
+    hand_detected: bool = True
 
     source: PredictionSource = "real"
     model_version: str = "1.0"
-    expression_source: PredictionSource | None = None
-    expression_model_version: str | None = None
     mudra_is_uncertain: bool = False
-    expression_is_uncertain: bool = False
 
     is_corrected: bool = False
     original_prediction: OriginalPrediction | None = None

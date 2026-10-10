@@ -100,7 +100,7 @@ export default function VideoAnalysisScreen() {
     >
       <Text className="text-ivory text-xl font-bold mb-1">Video Analysis</Text>
       <Text className="text-ivory/60 text-sm mb-5">
-        Upload a recorded performance to run mudra and expression detection on it.
+        Upload a recorded performance to run Kathakali mudra recognition, confidence analysis, and story interpretation.
       </Text>
 
       <Card className="items-center py-8 mb-4">
